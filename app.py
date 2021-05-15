@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 import dash_core_components as dcc
 import dash_html_components as html
 import pandas as pd
@@ -10,10 +12,26 @@ import openapi_client
 from openapi_client import ApiClient
 from openapi_client.api.companies_api import CompaniesApi
 from oidc_server import OidcServer
+from openapi_client.model.company import Company
 
 server = OidcServer(__name__, oauth_server="https://auth.demo.pragmaticindustries.de/auth/realms/hugo-demo",
                     client_id="b0618f82-53d6-4168-91da-a394b4585124",
                     client_secret="46ee08f0-646b-4b19-896e-6fb70d5a39b3")
+
+
+def get_api_client(access_token) -> Optional[ApiClient]:
+    if not access_token:
+        print("Fehler beim Login")
+        return None
+
+    configuration = openapi_client.Configuration(
+        host="https://hugo-staging.pragmaticindustries.com/api"
+    )
+    client = ApiClient(configuration=configuration, header_name="Authorization",
+                       header_value=f"Bearer {access_token}")
+
+    return client
+
 
 # Build a regular Dash app, only pass the server...
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
@@ -33,14 +51,19 @@ fig = px.bar(df, x="Fruit", y="Amount", color="City", barmode="group")
 app.layout = html.Div(children=[
     html.H1(children='Hello Dash', id="headline"),
 
-    html.Button(children="Klick mich", id="button"),
+    dcc.Interval(id='interval-component', interval=10 * 1000, n_intervals=0),
 
     html.Div(children="", id="companies"),
 
+    dcc.Dropdown(
+        id='companies-dropdown',
+        options=[
+        ],
+    ),
 
     html.Div(children='''
         Dash: A web application framework for Python.
-    '''),
+    ''', id="welcome"),
 
     dcc.Graph(
         id='example-graph',
@@ -49,27 +72,36 @@ app.layout = html.Div(children=[
 ])
 
 
-@app.callback(Output("headline", "children"), Input("headline", "n_clicks"))
-def set_headline(n_clicks):
-    return f"Hallo {server.oidc.user_getfield('email')} / {server.oidc.get_access_token()} / {g.oidc_id_token}"
+@app.callback(Output("headline", "children"), Input("interval-component", "n_intervals"))
+def set_headline(n):
+    return f"Hallo {server.oidc.user_getfield('email')}!"
 
 
-@app.callback(Output("companies", "children"), Input("button", "n_clicks"))
-def list_companies(n_clicks):
+@app.callback(Output("welcome", "children"), Input("companies-dropdown", "value"))
+def update_text(value):
+    if value is not None:
+        client = get_api_client(server.oidc.get_access_token())
+        if client:
+            companies_api = CompaniesApi(client)
+
+            company: Company = companies_api.companies_read(id=value)
+            return f"Sie haben das Unternehmen {company.name} ausgewählt!"
+    else:
+        return "Bitte wählen Sie ein Unternehmen aus!"
+
+
+@app.callback(Output("companies-dropdown", "options"), Input("interval-component", "n_intervals"))
+def list_companies(n):
+    print("Refresh...")
     # We can get the access token from the server
-    auth_token = server.oidc.get_access_token()
-    if not auth_token:
-        return "Fehler beim Login"
+    client = get_api_client(server.oidc.get_access_token())
+    if client:
+        companies_api = CompaniesApi(client)
+        result: List[Company] = companies_api.companies_list()
 
-    configuration = openapi_client.Configuration(
-        host="https://hugo-staging.pragmaticindustries.com/api"
-    )
-    client = ApiClient(configuration=configuration, header_name="Authorization",
-                       header_value=f"Bearer {auth_token}")
-    companies_api = CompaniesApi(client)
-    result = companies_api.companies_list()
+        values = [{"label": r.name, "value": r.id} for r in result]
 
-    return str(result)
+        return values
 
 
 if __name__ == '__main__':
