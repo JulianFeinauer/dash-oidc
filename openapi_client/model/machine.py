@@ -105,7 +105,7 @@ class Machine(ModelNormal):
             'location': (str,),  # noqa: E501
             'machine_id': (str,),  # noqa: E501
             'description': (str,),  # noqa: E501
-            'url': (str,),  # noqa: E501
+            'id': (int,),  # noqa: E501
             'type': (str,),  # noqa: E501
             'line': (str,),  # noqa: E501
             'lat': (float, none_type,),  # noqa: E501
@@ -113,7 +113,7 @@ class Machine(ModelNormal):
             'picture': (str, none_type,),  # noqa: E501
             'cockpit_id': (str,),  # noqa: E501
             'cockpit_url': (str, none_type,),  # noqa: E501
-            'owner': (str, none_type,),  # noqa: E501
+            'owner': (int, none_type,),  # noqa: E501
         }
 
     @cached_property
@@ -126,7 +126,7 @@ class Machine(ModelNormal):
         'location': 'location',  # noqa: E501
         'machine_id': 'machine_id',  # noqa: E501
         'description': 'description',  # noqa: E501
-        'url': 'url',  # noqa: E501
+        'id': 'id',  # noqa: E501
         'type': 'type',  # noqa: E501
         'line': 'line',  # noqa: E501
         'lat': 'lat',  # noqa: E501
@@ -189,7 +189,7 @@ class Machine(ModelNormal):
                                 Animal class but this time we won't travel
                                 through its discriminator because we passed in
                                 _visited_composed_classes = (Animal,)
-            url (str): [optional]  # noqa: E501
+            id (int): [optional]  # noqa: E501
             type (str): [optional]  # noqa: E501
             line (str): [optional]  # noqa: E501
             lat (float, none_type): [optional]  # noqa: E501
@@ -197,7 +197,7 @@ class Machine(ModelNormal):
             picture (str, none_type): [optional]  # noqa: E501
             cockpit_id (str): [optional]  # noqa: E501
             cockpit_url (str, none_type): [optional]  # noqa: E501
-            owner (str, none_type): [optional]  # noqa: E501
+            owner (int, none_type): [optional]  # noqa: E501
         """
 
         _check_type = kwargs.pop('_check_type', True)

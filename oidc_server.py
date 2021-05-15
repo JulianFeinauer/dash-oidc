@@ -1,11 +1,13 @@
-import os
 import typing as t
 
 from flask import Flask, request
 from flask_oidc import OpenIDConnect, MemoryCredentials
+from werkzeug.routing import Rule
 
 
 class OidcServer(Flask):
+    secured_endpoints: list[Rule]
+
     class MyOpenIDConnect(OpenIDConnect):
 
         def __init__(self, oauth_server, client_id, client_secret, app=None, credentials_store=None, http=None, time=None, urandom=None, self_host="http://localhost:5000"):
@@ -32,7 +34,6 @@ class OidcServer(Flask):
                  host_matching: bool = False, subdomain_matching: bool = False,
                  template_folder: t.Optional[str] = "templates", instance_path: t.Optional[str] = None,
                  instance_relative_config: bool = False, root_path: t.Optional[str] = None):
-        self.secured_endpoints = []
         super().__init__(import_name, static_url_path, static_folder, static_host, host_matching, subdomain_matching,
                          template_folder, instance_path, instance_relative_config, root_path)
 
@@ -42,19 +43,7 @@ class OidcServer(Flask):
 
         @self.before_request
         def before_request():
-            for endpoint in self.secured_endpoints:
-                if request.path.startswith(endpoint):
-                    return self.oidc.authenticate_or_redirect()
+            if request.path != "/oidc_callback":
+                return self.oidc.authenticate_or_redirect()
 
-    def add_url_rule(self, rule: str, endpoint: t.Optional[str] = None, view_func: t.Optional[t.Callable] = None,
-                     provide_automatic_options: t.Optional[bool] = None, **options: t.Any) -> None:
-        if rule != "/oidc_callback":
-            self.add_secured(endpoint)
-        super().add_url_rule(rule, endpoint, view_func, provide_automatic_options, **options)
-
-    def add_secured(self, endpoint):
-        if not endpoint.startswith("/"):
-            endpoint = "/" + endpoint
-        print(f"Securing {endpoint}")
-        self.secured_endpoints.append(endpoint)
 

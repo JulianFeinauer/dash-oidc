@@ -109,6 +109,7 @@ class MachinesApi(object):
             },
             params_map={
                 'all': [
+                    "owner"
                 ],
                 'required': [],
                 'nullable': [
@@ -124,10 +125,14 @@ class MachinesApi(object):
                 'allowed_values': {
                 },
                 'openapi_types': {
+                    'owner':
+                        (str,),
                 },
                 'attribute_map': {
+                    "owner": "owner"
                 },
                 'location_map': {
+                    "owner": "query"
                 },
                 'collection_format_map': {
                 }
@@ -221,6 +226,7 @@ class MachinesApi(object):
             params_map={
                 'all': [
                     'id',
+                    "owner",
                 ],
                 'required': [
                     'id',
@@ -246,6 +252,7 @@ class MachinesApi(object):
                 },
                 'location_map': {
                     'id': 'path',
+                    "owner": "query"
                 },
                 'collection_format_map': {
                 }

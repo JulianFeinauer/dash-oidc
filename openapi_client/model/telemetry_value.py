@@ -85,8 +85,8 @@ class TelemetryValue(ModelNormal):
         return {
             'app_name': (str,),  # noqa: E501
             'name': (str,),  # noqa: E501
-            'machine': (str,),  # noqa: E501
-            'url': (str,),  # noqa: E501
+            'machine': (int,),  # noqa: E501
+            'id': (int,),  # noqa: E501
             'iotdb_string': (str, none_type,),  # noqa: E501
         }
 
@@ -99,7 +99,7 @@ class TelemetryValue(ModelNormal):
         'app_name': 'app_name',  # noqa: E501
         'name': 'name',  # noqa: E501
         'machine': 'machine',  # noqa: E501
-        'url': 'url',  # noqa: E501
+        'id': 'id',  # noqa: E501
         'iotdb_string': 'iotdb_string',  # noqa: E501
     }
 
@@ -121,7 +121,7 @@ class TelemetryValue(ModelNormal):
         Args:
             app_name (str):
             name (str):
-            machine (str):
+            machine (int):
 
         Keyword Args:
             _check_type (bool): if True, values for parameters in openapi_types
@@ -154,7 +154,7 @@ class TelemetryValue(ModelNormal):
                                 Animal class but this time we won't travel
                                 through its discriminator because we passed in
                                 _visited_composed_classes = (Animal,)
-            url (str): [optional]  # noqa: E501
+            id (int): [optional]  # noqa: E501
             iotdb_string (str, none_type): [optional]  # noqa: E501
         """
 
